@@ -1,20 +1,11 @@
-<!---
-
-This file is used to generate your project datasheet. Please fill in the information below and delete any unused
-sections.
-
-You can also include images in this folder and reference them in the markdown. Each image must be less than
-512 kb in size, and the combined size of all images must be less than 1 MB.
--->
-
 ## How it works
 
-Explain how your project works
+A two-player tank game inspired by the 1991 classic, Scorched Earth. A single gamepad is used with the left and right sides of the controller managing the left and right game players. The up/down or X/B buttons correspond to power. The left/right or Y/A buttons correspond to angle. The triggers fire.
 
 ## How to test
 
-Explain how to use your project
+Plug in VGA and single Gamepad. The 
 
 ## External hardware
 
-List external hardware used in your project (e.g. PMOD, LED display, etc), if any
+VGA (output) PMOD and Gamepad (input) PMOD required.
