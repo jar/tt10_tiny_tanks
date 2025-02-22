@@ -5,7 +5,7 @@
 SIM ?= icarus
 TOPLEVEL_LANG ?= verilog
 SRC_DIR = $(PWD)/../src
-PROJECT_SOURCES = gamepad_pmod.v hvsync_generator.v tt_um_tiny_tanks.v
+PROJECT_SOURCES = lfsr.v gamepad_pmod_driver.v hvsync_generator.v tt_um_tiny_tanks.v
 
 ifneq ($(GATES),yes)
 
