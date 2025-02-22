@@ -40,7 +40,7 @@ module tt_um_tiny_tanks(
 	assign uo_out = {hsync, RGB[0], RGB[2], RGB[4], vsync, RGB[1], RGB[3], RGB[5]};
 
 	// VGA output
-	hvsync_generator vga_sync_gen(
+	hvsync_generator vga_sync_gen (
 		.clk(clk),
 		.reset(~rst_n),
 		.hsync(hsync),
@@ -53,7 +53,7 @@ module tt_um_tiny_tanks(
 	// Gamepad Pmod
 	wire inp_b, inp_y, inp_select, inp_start, inp_up, inp_down, inp_left, inp_right, inp_a, inp_x, inp_l, inp_r, inp_is_present;
 
-	gamepad_pmod_single driver(
+	gamepad_pmod_single driver (
 		// Inputs:
 		.rst_n(rst_n),
 		.clk(clk),
@@ -76,6 +76,12 @@ module tt_um_tiny_tanks(
 		.is_present(inp_is_present)
 	);
 
+	// Handle gamepad input at end of frame (60 Hz)
+	always @(posedge vsync) begin
+		power <= inp_down ? power - 1 : (inp_up    ? power + 1 : power);
+		angle <= inp_left ? angle - 1 : (inp_right ? angle + 1 : angle);
+	end
+
 	// Colors
 	wire [5:0] BLACK = {2'b00, 2'b00, 2'b00};
 	wire [5:0] BLUE  = {2'b00, 2'b00, 2'b11};
@@ -83,34 +89,57 @@ module tt_um_tiny_tanks(
 	wire [5:0] WHITE = {2'b11, 2'b11, 2'b11};
 	wire [5:0] SKY   = {2'b01, 2'b01, 2'b10};
 
-	//wire [7:0] seed = 8'd99;
-	wire [7:0] state;
-
-	lfsr terrain(
+	wire [7:0] height;
+	terrain_generator terrain (
 		.clk(clk),
 		.load(~video_active),
-		.seed(99),
-		.state(state)
+		.seed(8'd97),
+		.height(height)
 	);
 
 	wire is_border = ((x == 191 || x == 447) && (y >= 8 && y <= 24)) || ((y == 8 || y == 16 || y == 24) && (x >= 191 && x <= 447));
 	wire is_power = (x >= 191 && x <= 191 + {2'b00, power}) && (y >= 9  && y <= 15);
 	wire is_angle = (x >= 191 && x <= 191 + {2'b00, angle}) && (y >= 17 && y <= 23);
 	wire is_gui = is_border | is_power | is_angle;
-	wire is_terrain = y > {2'b00, state};
+	wire is_terrain = y > {2'b00, height};
 	wire is_water = y > {1'b0, water_height};
 
 	// gui > terrain > water > sky
 	assign RGB = video_active ? (is_gui ? WHITE : (is_terrain ? GREEN : (is_water ? BLUE : SKY))) : BLACK;
 
-	always @(posedge vsync) begin
-		power <= inp_down ? power - 1 : (inp_up    ? power + 1 : power);
-		angle <= inp_left ? angle - 1 : (inp_right ? angle + 1 : angle);
-	end
 	// RGB output logic
 	always @(posedge clk) begin
 		if (~rst_n) begin
 		end
 	end
 
+endmodule
+
+
+// This performs something like an incremental average of the LFSR
+module terrain_generator #(parameter NUM_BITS = 8, SHIFT = 6) (
+	input wire clk,
+	input wire load,
+	input wire [NUM_BITS-1:0] seed,
+	output reg [NUM_BITS-1:0] height
+);
+	wire [7:0] state;
+
+	lfsr terrain(
+		.clk(clk),
+		.load(load),
+		.seed(seed),
+		.state(state)
+	);
+
+	wire [SHIFT-1:0] zero = 0;
+	reg [NUM_BITS+SHIFT:1] height_state;
+	always @(posedge clk) begin
+		if (load) begin
+			height_state <= {seed, zero};
+		end else begin
+			height_state <= height_state - (height_state >> SHIFT) + {zero, state};
+		end
+	end
+	assign height = height_state[NUM_BITS+SHIFT:SHIFT+1];
 endmodule
