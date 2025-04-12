@@ -106,17 +106,13 @@ int main(int argc, char **argv)
 			} else if (e.type == SDL_KEYDOWN) {
 				switch (e.key.keysym.sym) {
 					case SDLK_ESCAPE:
-					case SDLK_q:
-						quit = true;
-						break;
+					case SDLK_q     : quit = true; break;
 					case SDLK_f:
 						static Uint32 mode = SDL_WINDOW_FULLSCREEN;
 						SDL_SetWindowFullscreen(window, mode);
 						mode = mode ? 0 : SDL_WINDOW_FULLSCREEN;
 						break;
-					case SDLK_p: // swap VGA sync polarity
-						polarity = polarity ? 0 : 1;
-						break;
+					case SDLK_p      : polarity = polarity ? 0 : 1;	break; // swap VGA sync polarity
 					case SDLK_b      : pmod.pad0.b      = true; break;
 					case SDLK_y      : pmod.pad0.y      = true; break;
 					case SDLK_SPACE  : pmod.pad0.select = true; break;
@@ -127,8 +123,8 @@ int main(int argc, char **argv)
 					case SDLK_RIGHT  : pmod.pad0.right  = true; break;
 					case SDLK_a      : pmod.pad0.a      = true; break;
 					case SDLK_x      : pmod.pad0.x      = true; break;
-					case SDLK_l      : pmod.pad0.l      = true; break;
-					case SDLK_r      : pmod.pad0.r      = true; break;
+					case SDLK_LSHIFT : pmod.pad0.l      = true; break;
+					case SDLK_RSHIFT : pmod.pad0.r      = true; break;
 					default: break;
 				}
 			} else if (e.type == SDL_KEYUP) {
@@ -143,8 +139,8 @@ int main(int argc, char **argv)
 					case SDLK_RIGHT  : pmod.pad0.right  = false; break;
 					case SDLK_a      : pmod.pad0.a      = false; break;
 					case SDLK_x      : pmod.pad0.x      = false; break;
-					case SDLK_l      : pmod.pad0.l      = false; break;
-					case SDLK_r      : pmod.pad0.r      = false; break;
+					case SDLK_LSHIFT : pmod.pad0.l      = false; break;
+					case SDLK_RSHIFT : pmod.pad0.r      = false; break;
 				}
 			}
 		}
